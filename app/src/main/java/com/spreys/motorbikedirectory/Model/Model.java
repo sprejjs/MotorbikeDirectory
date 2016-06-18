@@ -17,4 +17,17 @@ public class Model {
         this.modelClass = modelClass;
         this.engineSize = engineSize;
     }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getModelClass() {
+        return this.modelClass;
+    }
+
+    public String getEngineSize() {
+        return String.valueOf(this.engineSize);
+    }
+
 }

@@ -12,11 +12,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.spreys.motorbikedirectory.MainActivity;
 import com.spreys.motorbikedirectory.Model.Make;
 import com.spreys.motorbikedirectory.MotorbikesApplication;
 import com.spreys.motorbikedirectory.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
@@ -27,6 +27,7 @@ import butterknife.ButterKnife;
  */
 
 public class MakesFragment extends Fragment {
+    private List<Make> makes;
 
     @Bind(R.id.fragment_makes_listview)
     ListView makesListView;
@@ -38,16 +39,13 @@ public class MakesFragment extends Fragment {
 
         ButterKnife.bind(this, view);
 
-        makesListView.setAdapter(new MakesAdapter(getContext(), ((MotorbikesApplication)getActivity().getApplication()).getMakes()));
-        makesListView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        makes = ((MotorbikesApplication)getActivity().getApplication()).getMakes();
 
-            }
-
+        makesListView.setAdapter(new MakesAdapter(getContext(), makes));
+        makesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                //This method has been intentionally left blank
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ((MainActivity)getActivity()).loadModelsFragment(makes.get(position));
             }
         });
 

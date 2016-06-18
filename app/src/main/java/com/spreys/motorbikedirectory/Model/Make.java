@@ -23,4 +23,8 @@ public class Make {
     public String getName() {
         return name;
     }
+
+    public List<Model> getModels(){
+        return this.models;
+    }
 }
