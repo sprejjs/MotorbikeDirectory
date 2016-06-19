@@ -3,6 +3,7 @@ package com.spreys.motorbikedirectory.Network;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.spreys.motorbikedirectory.Model.Make;
+import com.spreys.motorbikedirectory.Model.Model;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,6 +12,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -27,6 +30,27 @@ public class ApiWrapper {
 
     public static List<Make> GetAllMakes() {
         return new Gson().fromJson(GetStringFromUrl(apiUrl), new TypeToken<ArrayList<Make>>(){}.getType());
+    }
+
+    public static boolean AddModel(Model model, String makeName) throws IOException {
+        URL url = new URL(apiUrl);
+        HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+        httpCon.setDoOutput(true);
+        httpCon.setRequestMethod("PUT");
+
+        //Set the parameters
+        httpCon.setRequestProperty("make", makeName);
+        httpCon.setRequestProperty("model", model.getName());
+        httpCon.setRequestProperty("modelClass", model.getModelClass());
+        httpCon.setRequestProperty("engineSize", model.getEngineSize());
+
+        OutputStreamWriter out = new OutputStreamWriter(
+                httpCon.getOutputStream());
+        out.write("Resource content");
+        out.close();
+        String result = ApiWrapper.ConvertStreamToString(httpCon.getInputStream());
+
+        return false;
     }
 
     public static JSONObject GetJsonObjectFromUrl(String url) {

@@ -1,19 +1,25 @@
 package com.spreys.motorbikedirectory.Fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.spreys.motorbikedirectory.MainActivity;
 import com.spreys.motorbikedirectory.Model.Make;
 import com.spreys.motorbikedirectory.Model.Model;
+import com.spreys.motorbikedirectory.Network.ApiWrapper;
 import com.spreys.motorbikedirectory.R;
 
 import butterknife.Bind;
@@ -29,6 +35,9 @@ public class ModelsFragment extends Fragment {
     @Bind(R.id.fragment_models_list_view)
     ListView modelsListView;
 
+    @Bind(R.id.fragment_models_add_new)
+    FloatingActionButton btnAddNew;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -37,8 +46,34 @@ public class ModelsFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         make = ((MainActivity)getActivity()).getSelectedMake();
-
         modelsListView.setAdapter(new ModelsAdapter(getContext(), make));
+
+        btnAddNew.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final View view = LayoutInflater.from(getContext()).inflate(R.layout.new_question_layout, null);
+
+                final EditText edtTxtName = (EditText)view.findViewById(R.id.new_model_layout_name);
+                final EditText edtTxtEngineSize = (EditText)view.findViewById(R.id.new_model_layout_engine_size);
+                final EditText edtTxtClass = (EditText)view.findViewById(R.id.new_model_layout_class);
+
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Add new model")
+                        .setView(view)
+                        .setPositiveButton("Submit", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                Model newModel = new Model(edtTxtName.getText().toString(),
+                                        edtTxtClass.getText().toString(),
+                                        Integer.valueOf(edtTxtEngineSize.getText().toString())
+                                        );
+
+                                new AddModelTask().execute(newModel);
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            }
+        });
 
         return view;
     }
@@ -85,6 +120,27 @@ public class ModelsFragment extends Fragment {
             ViewHolder(View view) {
                 ButterKnife.bind(this, view);
             }
+        }
+    }
+
+    private class AddModelTask extends AsyncTask<Model, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Model... params) {
+            try {
+                ApiWrapper.AddModel(params[0], make.getName());
+                make.addModel(params[0]);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            ((ArrayAdapter<Model>)modelsListView.getAdapter()).notifyDataSetChanged();
         }
     }
 }
